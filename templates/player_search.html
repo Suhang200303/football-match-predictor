@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Player Search</title>
+</head>
+<body>
+  <h1>Player Search Results</h1>
+  <ul>
+    {% for player in players %}
+      <li>{{ player.name }} - {{ player.team }}</li>
+    {% empty %}
+      <li>No results found.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Template</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Contract expires</th>
+            <th>Similarity</th>
+        </tr>
+        {% for player in result %}
+        <tr>
+            <td>{{ player.Player }}</td>
+            <td>{{ player.Team }}</td>
+            <td>{{ player.Contract expires }}</td>
+            <td>{{ player.Similarity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

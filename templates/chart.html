@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Homepage</title>
+    <!-- 引入 ECharts 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://unpkg.com/neo4j-driver"></script>
+
+    <script>
+        function toggleCheckbox() {
+            var checkboxDiv = document.getElementById("checkboxDiv");
+
+            // 切换复选框的显示/隐藏状态
+            if (checkboxDiv.style.display === "none") {
+                checkboxDiv.style.display = "block";
+            } else {
+                checkboxDiv.style.display = "none";
+            }
+        }
+
+        function funCheckbox() {
+            var checkboxDiv = document.getElementById("checkboxDiv");
+
+            // 切换复选框的显示/隐藏状态
+            if (radiobox_fun.style.display === "none") {
+                radiobox_fun.style.display = "block";
+            } else {
+                radiobox_fun.style.display = "none";
+            }
+        }
+    </script>
+
+    <style>
+      input[type="submit"] {
+      background-color: #1565c0;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #checkboxDiv {
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+    #predictBtn {
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    #funBtn {
+            background-color: #f0d020;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+    #radiobox_fun {
+            background-color: #f0d020;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center;">20组小组展示：足球数据分析</h2>
+    <div style="text-align: center;">
+        <form method="get" action="/search_f/" style="display: inline-block;">
+            <input type="submit" value="数据库查询">
+        </form>
+
+        <form method="get" action="/search_sim" style="display: inline-block;">
+            <input type="submit" style="background-color: #752934" value="球员相似推荐">
+        </form>
+
+        <form method="get" action="/total_stat" style="display: inline-block;">
+            <input type="submit" style="background-color: #bcabca" value="比赛情况可视化">
+        </form>
+
+        <button id="funBtn" class="btn waves-effect waves-light"
+            onclick="funCheckbox()">
+        趣味数据分析
+    </button>
+
+
+
+        <button id="predictBtn" class="btn waves-effect waves-light"
+            onclick="toggleCheckbox()">
+        胜率预测
+    </button>
+
+    <!-- 复选框 -->
+        <div id="checkboxDiv">
+                <input type="submit" id="half" name="half" style="background-color: #000000" value="半场预测" onclick="window.location.href='/predict'">
+
+                <input type="submit" id="full" name="full" style="background-color: #000000" value="开赛前全场预测" onclick="window.location.href='/server_f'">
+        </div>
+
+        <div id="radiobox_fun">
+                <input type="submit" id="periods" name="periods" style="background-color: #000000" value="裁判参与场次" onclick="window.location.href='/draw'">
+
+                <input type="submit" id="cards" name="cards" style="background-color: #000000" value="裁判给牌数目" onclick="window.location.href='/y_draw'">
+        </div>
+    </div>
+
+
+
+
+    <div id="chart-container" style="width: 1200px; height: 800px;"></div>
+    <script type="text/javascript">
+        // 创建 Neo4j 驱动程序实例
+        var driver = neo4j.driver(
+            'bolt://localhost:7687',
+            neo4j.auth.basic('neo4j', '12345678')
+        );
+
+        // 运行 Cypher 查询获取关系图数据
+        var cypherQuery = 'MATCH (n)-[r]->(m) RETURN n, r, m limit 500';
+        var session = driver.session();
+        session.run(cypherQuery)
+            .then(result => {
+                console.log("数据库连接成功")
+                // 处理查询结果，提取节点和链接信息
+                var nodes = [];
+                var nodes_t = [];
+                var links = [];
+                result.records.forEach(record => {
+                    console.log("正在读取数据")
+                    var sourceNode = record.get('n');
+                    var relationship = record.get('r');
+                    var targetNode = record.get('m');
+
+
+
+                    var sourceNodeProperties = Object.assign({}, sourceNode.properties, { category: 'source' });
+                    var targetNodeProperties = Object.assign({}, targetNode.properties, { category: 'target' });
+
+                    sourceNodeProperties.id = sourceNode.identity.toString();
+                    targetNodeProperties.id = targetNode.identity.toString();
+
+
+                    var link = {
+                        source: sourceNode.identity.toString(),
+                        target: targetNode.identity.toString(),
+                        label: relationship.type,
+                        lineStyle: {
+                            width: 1
+                        }
+                    };
+
+
+
+                    nodes.push(sourceNodeProperties);
+                    nodes_t.push(targetNodeProperties);
+                    links.push(link);
+                });
+
+                var uniqueNode = nodes.filter((value, index, self) => {
+                    // 遍历之前的元素，判断是否存在相同的对象
+                    for (var i = 0; i < index; i++) {
+                        if (isEqual(value, self[i])) {
+                            return false; // 如果存在相同的对象，则过滤
+                        }
+                    }
+                    return true; // 如果不存在相同的对象，则保留
+                });
+
+                var uniquet = nodes_t.filter((value, index, self) => {
+                    // 遍历之前的元素，判断是否存在相同的对象
+                    for (var i = 0; i < index; i++) {
+                        if (isEqual(value, self[i])) {
+                            return false; // 如果存在相同的对象，则过滤
+                        }
+                    }
+                    return true; // 如果不存在相同的对象，则保留
+                });
+
+                // 比较两个对象是否相等的辅助函数
+                function isEqual(obj1, obj2) {
+                    return JSON.stringify(obj1) === JSON.stringify(obj2);
+                }
+
+                console.log(uniquet)
+
+                var uniqueLinks = Array.from(new Set(links));
+                console.log(uniqueLinks)
+
+                var NODE = uniqueNode.concat(uniquet);
+
+                var un_NODE = NODE.filter((value, index, self) => {
+                    // 使用 findIndex() 方法查找之前的元素中是否存在相同的对象
+                    var foundIndex = self.findIndex(item => isEqual(value, item));
+
+                    // 如果当前索引与找到的索引不一致，则说明存在相同的对象，进行过滤
+                    return foundIndex === index;
+                });
+
+                console.log(NODE)
+
+                // 渲染 ECharts 关系图
+                var myChart = echarts.init(document.getElementById('chart-container'));
+
+                var option = {
+                    series: [
+                        {
+                            type: 'graph',
+                            layout: 'force',
+                            data: uniqueNode,
+                            links: uniqueLinks,
+                            categories: [
+                                { name: 'source', itemStyle: { color: '#66CCFF' } }, // 源节点的颜色为红色
+                                { name: 'target', itemStyle: { color: '#FF0000' } } // 目标节点的颜色为绿色
+                            ],
+                            emphasis: {
+                                focus: 'adjacency',
+                                lineStyle: {
+                                    width: 3,
+                                },
+                            },
+                            // 其他样式和配置
+                        },
+                    ],
+                };
+
+                myChart.setOption(option);
+
+                // 关闭 Neo4j 驱动程序会话和驱动程序实例
+                session.close();
+                driver.close();
+            })
+            .catch(error => {
+                console.error('查询出错:', error);
+                // 关闭 Neo4j 驱动程序会话和驱动程序实例
+                session.close();
+                driver.close();
+            });
+    </script>
+
+</body>
+</html>

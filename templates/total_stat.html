@@ -1,0 +1,105 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input[type="text"] {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="container">
+    <h1>比赛事件可视化</h1>
+    <form id="shot_view_form" method="get">
+        <input type="text" id="match_id_input" name="match_id" placeholder="输入比赛ID">
+        <input type="text" id="team_name_input" name="team_name" placeholder="输入球队名称">
+        <button type="submit" formaction="/shot_view">映射射门情况</button>
+        <button type="submit" formaction="/pass_view">映射传球情况</button>
+        <button type="submit" formaction="/goal_view">映射得分情况</button>
+        <button type="submit" formaction="/heatmap_view">映射射门威胁热力图</button>
+        <button type="submit" formaction="/total_map">映射队员传球/射门威胁图</button>
+    </form>
+    <form method="GET" action="/">
+        <button type="submit">返回首页</button>
+    </form>
+</div>
+
+<script>
+    // 监听表单的提交事件
+    document.getElementById('shot_view_form').addEventListener('submit', function(event) {
+        event.preventDefault(); // 阻止表单默认提交行为
+
+        // 获取表单数据
+        const formData = new FormData(this);
+        const matchId = formData.get('match_id');
+        const teamName = formData.get('team_name');
+
+        // 根据不同的提交按钮，决定表单的提交位置
+        const submitButtonClicked = document.activeElement;
+
+        if (submitButtonClicked.getAttribute('formaction') === '/shot_view') {
+            // 提交到映射射门情况
+
+            console.log('提交到映射射门情况:', matchId, teamName);
+            this.action = '/shot_view';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/pass_view') {
+            // 提交到映射传球情况
+
+            console.log('提交到映射传球情况:', matchId, teamName);
+            this.action = '/pass_view';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/goal_view') {
+            // 提交到映射得分情况
+
+            console.log('提交到映射得分情况:', matchId, teamName);
+            this.action = '/goal_view';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/heatmap_view') {
+            // 提交到映射得分情况
+
+            console.log('提交到射门威胁热力图情况:', matchId, teamName);
+            this.action = '/heatmap_view';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/total_map') {
+            // 提交到映射得分情况
+
+            console.log('提交到队员传球/射门情况:', teamName);
+            this.action = '/total_map';
+        }
+
+        this.submit();
+    });
+</script>

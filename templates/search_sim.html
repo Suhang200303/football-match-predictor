@@ -1,0 +1,99 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input[type="text"] {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #00CCFF;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="container">
+    <h1>推荐查找</h1>
+    <form id="search_sim" method="GET">
+        <input type="text" name="name" placeholder="输入球员名称进行基于相似度的推荐">
+        <input type="text" name="rival" placeholder="若要生成雷达图请填写对比球员名称">
+        <button type="submit" formaction="/search_sim">普通推荐——查找</button>
+        <button type="submit" formaction="/search_sim_plus">模型推荐——聚类</button>
+        <button type="submit" formaction="/radier_p">队员雷达图</button>
+    </form>
+
+    <form id="search_p" method="get" action="/player_search">
+        <input type="submit" value="显示所有可查找球员">
+    </form>
+
+    <form method="get" action="/">
+        <button type="submit">返回首页</button>
+    </form>
+
+
+</div>
+<script>
+    // 监听表单的提交事件
+    document.getElementById('search_sim').addEventListener('submit', function(event) {
+        event.preventDefault(); // 阻止表单默认提交行为
+
+        // 获取表单数据
+        const formData = new FormData(this);
+        const Name = formData.get('name');
+        const Name_r = formData.get('rival');
+
+        // 根据不同的提交按钮，决定表单的提交位置
+        const submitButtonClicked = document.activeElement;
+
+        if (submitButtonClicked.getAttribute('formaction') === '/search_sim') {
+            // 提交到映射射门情况
+
+            console.log('提交到普通查找情况:', Name);
+            this.action = '/search_sim';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/search_sim_plus') {
+            // 提交到映射传球情况
+
+            console.log('提交到列表查找情况:', Name);
+            this.action = '/search_sim_plus';
+        } else if (submitButtonClicked.getAttribute('formaction') === '/radier_p') {
+            // 提交到映射传球情况
+
+            console.log('提交到雷达图对比:', Name, Name_r);
+            this.action = '/radier_p';
+        }
+        this.submit();
+    });
+
+</script>

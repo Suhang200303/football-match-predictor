@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: "Roboto", sans-serif;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      width: 300px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      color: #757575;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      padding: 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #1565c0;
+    }
+
+    input[type="submit"] {
+      background-color: #1565c0;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .error-message {
+      color: #e53935;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .register-link {
+      color: #1565c0;
+      text-decoration: none;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .custom-select {
+    display: inline-block;
+    position: relative;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    width: 200px;
+    height: 30px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-select select {
+    width: 200%;
+    height: 200%;
+    margin: 0;
+    padding: 10px 10px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+  }
+
+  .custom-select::after {
+    content: '\25BC';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .custom-label {
+        display: inline-block;
+        margin-bottom: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* 设置鼠标悬停时的样式 */
+    .custom-label:hover {
+        color: #FF0000;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>数据表简单查询</h1>
+    <form method="get" action="/search_f/">
+        {% csrf_token %}
+        <label for="period">查询类别：</label>
+        <select name="period" id="period" required onchange="updateAttributeOptions()">
+            <option value="select">可选择</option>
+            <option value="比赛">比赛</option>
+            <option value="赛事">赛事</option>
+            <option value="队伍">队伍</option>
+            <option value="队员">队员</option>
+        </select>
+
+        <label for="attribute_s">类别属性：</label>
+        <select name="attribute_s" id="attribute_s" required>
+            <!-- 初始状态下，所有选项都可见 -->
+            <option value="select">可选择</option>
+        </select>
+
+<label for="value">属性值：</label>
+<input type="text" name="value" placeholder="输入属性值" required>
+
+<label for="attribute_r">返回属性：</label>
+<input type="text" name="attribute_r" placeholder="返回属性" required>
+
+<input type="submit" value="Search">
+    </form>
+
+    {% if error_message %}
+      <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+
+
+  </div>
+<script>
+    function updateAttributeOptions() {
+        var periodSelect = document.getElementById("period");
+        var attributeSelect = document.getElementById("attribute_s");
+
+        // 先移除所有选项
+        attributeSelect.innerHTML = "";
+
+        // 根据 period 的选择结果添加对应的选项
+        if (periodSelect.value === "比赛") {
+            attributeSelect.innerHTML += `
+                <option value="比赛编号">比赛编号</option>
+                <option value="主队">主队</option>
+                <option value="客队">客队</option>
+                <option value="主队分数">主队分数</option>
+                <option value="客队分数">客队分数</option>
+            `;
+        } else if (periodSelect.value === "赛事") {
+            attributeSelect.innerHTML += `
+                <option value="区域">区域</option>
+                <option value="名称">名称</option>
+                <option value="赛季">赛季</option>
+            `;
+        } else if (periodSelect.value === "队伍") {
+            attributeSelect.innerHTML += `
+                <option value="名称">名称</option>
+                <option value="参赛场次">参赛场次</option>
+            `;
+        } else if (periodSelect.value === "队员") {
+            attributeSelect.innerHTML += `
+                <option value="姓名">姓名</option>
+                <option value="位置">位置</option>
+                <option value="国家">国家</option>
+                <option value="球衣号码">球衣号码</option>
+                <option value="编号">编号</option>
+            `;
+        }
+    }
+</script>
+</body>
+</html>
